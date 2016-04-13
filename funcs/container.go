@@ -6,6 +6,7 @@ import (
         info "github.com/google/cadvisor/info/v1"
         "log"
         "sync"
+        //"strconv"
 )
 
 const (
@@ -49,6 +50,9 @@ func UpdateContainerStat() error {
 func ContainerPrepared(container string) bool {
         csLock.RLock()
         defer csLock.RUnlock()
+	if _, ok := containerStatHistory[container]; !ok {
+		return false;
+	}
         return containerStatHistory[container][1] != nil
 }
 
@@ -69,22 +73,53 @@ func ContainerMetrics() (L []*model.MetricValue) {
 
                 tag := "id=" + container
 
-                L = append(L, GaugeValue("container.cpu.usage.total",
+                L = append(L, GaugeValue("container.cpu.usage.busy",
                         float64(containerStatHistory[container][0].Stats[0].Cpu.Usage.Total -
                         containerStatHistory[container][1].Stats[0].Cpu.Usage.Total) /
                         float64(procStatHistory[0].Cpu.Total -
-                        procStatHistory[1].Cpu.Total) / 10000000.0 *
-                        float64(machineInfo.NumCores) * 100.0, tag))
+                        procStatHistory[1].Cpu.Total) / 100000.0, tag))
+
+                L = append(L, GaugeValue("container.cpu.usage.user",
+                        float64(containerStatHistory[container][0].Stats[0].Cpu.Usage.User -
+                        containerStatHistory[container][1].Stats[0].Cpu.Usage.User) /
+                        float64(procStatHistory[0].Cpu.Total -
+                        procStatHistory[1].Cpu.Total) / 100000.0, tag))
+
+                L = append(L, GaugeValue("container.cpu.usage.system",
+                        float64(containerStatHistory[container][0].Stats[0].Cpu.Usage.System -
+                        containerStatHistory[container][1].Stats[0].Cpu.Usage.System) /
+                        float64(procStatHistory[0].Cpu.Total -
+                        procStatHistory[1].Cpu.Total) / 100000.0, tag))
+		/*
+                for i := 1; i <= int(machineInfo.NumCores); i++ {
+                        L = append(L, GaugeValue("container.cpu.usage.core.busy",
+                                float64(containerStatHistory[container][0].Stats[0].Cpu.Usage.PerCpu[i-1] -
+                                containerStatHistory[container][1].Stats[0].Cpu.Usage.PerCpu[i-1]) /
+                                float64(procStatHistory[0].Cpu.Total -
+                                procStatHistory[1].Cpu.Total) / float64(machineInfo.NumCores) / 100000.0, tag + ",core=" + strconv.Itoa(i)))
+                }*/
+
 
                 if (containerStatHistory[container][0].Spec.Memory.Limit > uint64(machineInfo.MemoryCapacity)) {
-                        L = append(L, GaugeValue("container.memory.limit", machineInfo.MemoryCapacity, tag))
+                        L = append(L, GaugeValue("container.mem.limit", machineInfo.MemoryCapacity, tag))
+                        L = append(L, GaugeValue("container.mem.usage.percent", float64(containerStatHistory[container][0].Stats[0].Memory.Usage) /
+                        float64(machineInfo.MemoryCapacity) * 100.0, tag))
                 } else {
-                        L = append(L, GaugeValue("container.memory.limit", containerStatHistory[container][0].Spec.Memory.Limit, tag))
+                        L = append(L, GaugeValue("container.mem.limit", containerStatHistory[container][0].Spec.Memory.Limit, tag))
+                        L = append(L, GaugeValue("container.mem.usage.percent", float64(containerStatHistory[container][0].Stats[0].Memory.Usage) /
+                        float64(containerStatHistory[container][0].Spec.Memory.Limit) * 100.0, tag))
                 }
-                L = append(L, GaugeValue("container.memory.usage", containerStatHistory[container][0].Stats[0].Memory.Usage, tag))
+                L = append(L, GaugeValue("container.mem.usage", containerStatHistory[container][0].Stats[0].Memory.Usage, tag))
+                L = append(L, GaugeValue("container.mem.working_set", containerStatHistory[container][0].Stats[0].Memory.WorkingSet, tag))
 
-                L = append(L, CounterValue("container.network.rxbytes", containerStatHistory[container][0].Stats[0].Network.RxBytes, tag))
-                L = append(L, CounterValue("container.network.txbytes", containerStatHistory[container][0].Stats[0].Network.TxBytes, tag))
+                L = append(L, CounterValue("container.net.if.in.bytes", containerStatHistory[container][0].Stats[0].Network.RxBytes, tag))
+                L = append(L, CounterValue("container.net.if.in.packets", containerStatHistory[container][0].Stats[0].Network.RxPackets, tag))
+                L = append(L, CounterValue("container.net.if.in.errors", containerStatHistory[container][0].Stats[0].Network.RxErrors, tag))
+                L = append(L, CounterValue("container.net.if.in.dropped", containerStatHistory[container][0].Stats[0].Network.RxDropped, tag))
+                L = append(L, CounterValue("container.net.if.out.bytes", containerStatHistory[container][0].Stats[0].Network.TxBytes, tag))
+                L = append(L, CounterValue("container.net.if.out.packets", containerStatHistory[container][0].Stats[0].Network.TxPackets, tag))
+                L = append(L, CounterValue("container.net.if.out.errors", containerStatHistory[container][0].Stats[0].Network.TxErrors, tag))
+                L = append(L, CounterValue("container.net.if.out.dropped", containerStatHistory[container][0].Stats[0].Network.TxDropped, tag))
 
                 for _, fsStats := range containerStatHistory[container][0].Stats[0].Filesystem {
 

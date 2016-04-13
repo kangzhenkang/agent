@@ -5,7 +5,7 @@ This is a linux monitor for both hosts and containers based on falcon-agent and 
 
 ## Installation
 
-It is a golang classic project
+It is a golang classic project (note that this project is designed for container-based running, this part merely show how domeos/agent is installed)
 
 ```bash
 # set $GOPATH and $GOROOT
@@ -48,3 +48,5 @@ sudo docker run -d \
 --name agent \
 domeos/agent:latest
 ```
+
+transfer address is a list: for example [\"127.0.0.1:8443\",\"127.0.0.1:8443\"]

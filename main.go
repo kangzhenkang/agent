@@ -15,11 +15,11 @@ import (
 	"github.com/domeos/agent/funcs"
 	"github.com/domeos/agent/g"
 	agenthttp "github.com/domeos/agent/http"
-        "github.com/google/cadvisor"
         cadvisorhttp "github.com/google/cadvisor/http"
         "github.com/google/cadvisor/manager"
         "github.com/google/cadvisor/utils/sysfs"
         "github.com/google/cadvisor/version"
+        "github.com/google/cadvisor/cache/memory"
 
 )
 
@@ -27,7 +27,6 @@ var argIp = flag.String("listen_ip", "", "IP to listen on, defaults to all IPs")
 var argPort = flag.Int("port", 8080, "port to listen")
 var maxProcs = flag.Int("max_procs", 0, "max number of CPUs that can be used simultaneously. Less than 1 for default (number of cores).")
 
-var argDbDriver = flag.String("storage_driver", "", "storage driver to use. Data is always cached shortly in memory, this controls where data is pushed besides the local cache. Empty means none. Options are: <empty> (default), bigquery, and influxdb")
 var versionFlag = flag.Bool("version", false, "print cAdvisor version and exit")
 
 var httpAuthFile = flag.String("http_auth_file", "", "HTTP auth file for the web UI")
@@ -42,6 +41,7 @@ var allowDynamicHousekeeping = flag.Bool("allow_dynamic_housekeeping", true, "Wh
 
 var enableProfiling = flag.Bool("profiling", false, "Enable profiling via web interface host:port/debug/pprof/")
 
+var storageDuration = flag.Duration("storage_duration", 2*time.Minute, "How long to keep data stored (Default: 2min).")
 
 func main() {
 
@@ -96,10 +96,7 @@ func startContainerMonitor() manager.Manager {
 
         setMaxProcs()
 
-        memoryStorage, err := cadvisor.NewMemoryStorage(*argDbDriver)
-        if err != nil {
-                log.Fatalf("Failed to connect to database: %s", err)
-        }
+        memoryStorage := memory.New(*storageDuration, nil)
 
         sysFs, err := sysfs.NewRealSysFs()
         if err != nil {

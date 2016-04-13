@@ -15,6 +15,7 @@ WORKDIR /opt/falcon-agent
 COPY falcon-agent ./falcon-agent
 COPY control ./control
 COPY cfg.template.json ./cfg.template.json
+COPY dockerConnector ./dockerConnector
 
 # Copy start script
 

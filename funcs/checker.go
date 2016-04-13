@@ -2,7 +2,7 @@ package funcs
 
 import (
 	"fmt"
-	"github.com/toolkits/nux"
+	"github.com/domeos/agent/nux"
 	"github.com/toolkits/sys"
 )
 

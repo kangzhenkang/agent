@@ -5,6 +5,7 @@ import (
 	"github.com/toolkits/net"
 	"github.com/toolkits/slice"
         "github.com/google/cadvisor/manager"
+	info "github.com/google/cadvisor/info/v1"
 	"log"
 	"os"
 	"strings"
@@ -33,8 +34,7 @@ func InitLocalIps() {
 }
 
 var (
-	HbsClient      *SingleConnRpcClient
-	TransferClient *SingleConnRpcClient
+	HbsClient       *SingleConnRpcClient
 )
 
 func InitRpcClients() {
@@ -45,12 +45,6 @@ func InitRpcClients() {
 		}
 	}
 
-	if Config().Transfer.Enabled {
-		TransferClient = &SingleConnRpcClient{
-			RpcServer: Config().Transfer.Addr,
-			Timeout:   time.Duration(Config().Transfer.Timeout) * time.Millisecond,
-		}
-	}
 }
 
 func SendToTransfer(metrics []*model.MetricValue) {
@@ -65,10 +59,7 @@ func SendToTransfer(metrics []*model.MetricValue) {
 	}
 
 	var resp model.TransferResponse
-	err := TransferClient.Call("Transfer.Update", metrics, &resp)
-	if err != nil {
-		log.Println("call Transfer.Update fail", err)
-	}
+	SendMetrics(metrics, &resp)
 
 	if debug {
 		log.Println("<=", &resp)
@@ -196,14 +187,17 @@ func SetCurrentContainers(containers []string) {
 }
 
 func UpdateCurrentContainers() {
-        dockerContainers, err := ContainerManager().DockerContainers()
+	reqParams := &info.ContainerInfoRequest{
+		NumStats: 1,
+	}
+        dockerContainers, err := ContainerManager().AllDockerContainers(reqParams)
         if err != nil {
                 log.Println("Get docker containers error : %s", err.Error())
                 return;
         }
         containers := make([]string, 0)
         for _, container := range dockerContainers {
-                containers = append(containers, container.ID)
+                containers = append(containers, container.Id)
         }
         SetCurrentContainers(containers)
 }

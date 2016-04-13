@@ -16,7 +16,7 @@
     },
     "transfer": {
         "enabled": {{ default .Env.TRANSFER_ENABLED "true" }},
-        "addr": {{ default .Env.TRANSTER_ADDR "\"127.0.0.1:8433\"" }},
+        "addrs": {{ default .Env.TRANSTER_ADDR "[\"127.0.0.1:8433\",\"127.0.0.1:8433\"]" }},
         "interval": {{ default .Env.TRANSFER_INTERVAL "60" }},
         "timeout": {{ default .Env.TRANSFER_TIMEOUT "1000" }}
     },
@@ -30,15 +30,8 @@
     },
     "ignore": {
         "cpu.idle": true,
-        "cpu.user": true,
-        "cpu.nice": true,
-        "cpu.system": true,
-        "cpu.iowait": true,
-        "cpu.irq": true,
-        "cpu.softirq": true,
         "cpu.steal": true,
         "cpu.guest": true,
-        "cpu.switches": true,
         "net.if.in.packets": true,
         "net.if.in.errors": true,
         "net.if.in.dropped": true,
@@ -69,7 +62,6 @@
         "mem.swapused": true,
         "mem.swapfree": true,
         "mem.memfree.percent": true,
-        "mem.memused.percent": true,
         "mem.swapfree.percent": true,
         "mem.swapused.percent": true,
         "disk.io.read_requests": true,
@@ -96,7 +88,6 @@
         "snmp.Udp.RcvbufErrors": true,
         "snmp.Udp.SndbufErrors": true,
         "df.bytes.free": true,
-        "df.bytes.used.percent": true,
         "df.bytes.free.percent": true,
         "df.inodes.total": true,
         "df.inodes.used": true,
@@ -133,6 +124,15 @@
         "ss.orphaned": true,
         "ss.slabinfo.timewait": true,
         "ss.synrecv": true,
-        "ss.timewait": true
+        "ss.timewait": true,
+	"container.mem.working_set": true,
+	"container.disk.io.read_bytes": true,
+	"container.disk.io.write_bytes": true,
+	"container.net.if.in.packets": true,
+	"container.net.if.in.errors": true,
+	"container.net.if.in.dropped": true,
+	"container.net.if.out.packets": true,
+	"container.net.if.out.errors": true,
+	"container.net.if.out.dropped": true
     }
 }

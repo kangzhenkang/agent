@@ -3,7 +3,7 @@ package funcs
 import (
 	"github.com/domeos/agent/g"
 	"github.com/open-falcon/common/model"
-	"github.com/toolkits/nux"
+	"github.com/domeos/agent/nux"
 	"log"
 )
 

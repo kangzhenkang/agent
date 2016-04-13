@@ -3,7 +3,7 @@ package http
 import (
 	"encoding/json"
 	"github.com/domeos/agent/g"
-	"github.com/domeos/common/model"
+	"github.com/open-falcon/common/model"
 	"net/http"
 )
 

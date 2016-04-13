@@ -16,17 +16,17 @@ type PluginConfig struct {
 }
 
 type HeartbeatConfig struct {
-	Enabled  bool   `json:"enabled"`
-	Addr     string `json:"addr"`
-	Interval int    `json:"interval"`
-	Timeout  int    `json:"timeout"`
+	Enabled  bool     `json:"enabled"`
+	Addr     string   `json:"addr"`
+	Interval int      `json:"interval"`
+	Timeout  int      `json:"timeout"`
 }
 
 type TransferConfig struct {
-	Enabled  bool   `json:"enabled"`
-	Addr     string `json:"addr"`
-	Interval int    `json:"interval"`
-	Timeout  int    `json:"timeout"`
+	Enabled  bool     `json:"enabled"`
+	Addrs    []string `json:"addrs"`
+	Interval int      `json:"interval"`
+	Timeout  int      `json:"timeout"`
 }
 
 type HttpConfig struct {

@@ -3,7 +3,7 @@ package http
 import (
 	"fmt"
 	"github.com/domeos/agent/funcs"
-	"github.com/toolkits/nux"
+	"github.com/domeos/agent/nux"
 	"net/http"
 	"runtime"
 )
